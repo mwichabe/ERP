@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const { authMiddleware } = require('../middleware/auth');
 const router = express.Router();
 
 /**
@@ -46,8 +47,8 @@ router.post('/register', [
         email: user.email, 
         role: user.role 
       },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      process.env.JWT_SECRET || "7a8c3d1f0b9e2a4c5f6d8e7b9a0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c",
+      { expiresIn: process.env.JWT_EXPIRES_IN||'7d' }
     );
 
     res.status(201).json({
@@ -112,8 +113,8 @@ router.post('/login', [
         email: user.email, 
         role: user.role 
       },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      process.env.JWT_SECRET || '7a8c3d1f0b9e2a4c5f6d8e7b9a0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c',
+      { expiresIn: process.env.JWT_EXPIRES_IN||'7d' }
     );
 
     // Return token and user data (password excluded by toJSON)
@@ -133,3 +134,25 @@ router.post('/login', [
 });
 
 module.exports = router;
+
+/**
+ * GET /api/auth/me
+ * Return the currently authenticated user's profile
+ */
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    });
+  } catch (error) {
+    console.error('Me error:', error);
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});

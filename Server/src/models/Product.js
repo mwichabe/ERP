@@ -73,7 +73,7 @@ productSchema.set('toJSON', { virtuals: true });
 productSchema.set('toObject', { virtuals: true });
 
 // Index for faster queries
-productSchema.index({ sku: 1 });
+//productSchema.index({ sku: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ isActive: 1 });
 

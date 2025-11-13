@@ -7,6 +7,8 @@ const authRoutes = require('./routes/authRoutes');
 const financeRoutes = require('./routes/financeRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const mlRoutes = require('./routes/mlRoutes');
+const supportRoutes = require('./routes/supportRoutes');
+const roleRequestRoutes = require('./routes/roleRequestRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +32,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/ml', mlRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/role-requests', roleRequestRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -97,7 +101,7 @@ app.use((err, req, res, next) => {
   // Default error
   res.status(err.status || 500).json({ 
     error: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    ...(process.env.NODE_ENV || 'development' === 'development' && { stack: err.stack })
   });
 });
 

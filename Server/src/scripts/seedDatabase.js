@@ -12,7 +12,7 @@ const Transaction = require('../models/Transaction');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://mwichabecollins:CYncuUqsdWkX7F7q@cluster0.wrcfgw9.mongodb.net/');
     console.log('MongoDB Connected for seeding');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
