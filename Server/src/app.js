@@ -13,11 +13,36 @@ const roleRequestRoutes = require('./routes/roleRequestRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+const allowedOrigins = [];
+
+// 1. Add deployed frontend URL (expected from Vercel/Render)
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL ||'');
+}
+
+// 2. Always allow localhost:8080 for development/local testing
+allowedOrigins.push('http://localhost:8080');
+allowedOrigins.push('http://localhost:3000'); 
+
+// Configure CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or server-to-server)
+    if (!origin) return callback(null, true); 
+
+    // Allow the origin if it is in the allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // Reject if origin is not allowed
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      callback(new Error(msg), false);
+    }
+  },
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
